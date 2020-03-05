@@ -8,13 +8,13 @@ namespace AtCoder
     {
 
 
-        class Node<T>
+        class Node
         {
             private AVLTree<T> _tree;
 
-            public Node<T> Left { get; set; }
-            public Node<T> Right { get; set; }
-            public Node<T> Parent { get; set; }
+            public Node Left { get; set; }
+            public Node Right { get; set; }
+            public Node Parent { get; set; }
 
             private int Bias()
             {
