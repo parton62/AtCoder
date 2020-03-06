@@ -12,13 +12,14 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace CopyLibraryAnalyzer
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CopyLibraryAnalyzerCodeFixProvider)), Shared]
     public class CopyLibraryAnalyzerCodeFixProvider : CodeFixProvider
     {
-        private const string title = "Make uppercase";
+        private const string title = "Make constant";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -40,34 +41,91 @@ namespace CopyLibraryAnalyzer
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+            //var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<LocalDeclarationStatementSyntax>().First();
 
             // Register a code action that will invoke the fix.
+            //context.RegisterCodeFix(
+            //    CodeAction.Create(
+            //        title: title,
+            //        createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
+            //        equivalenceKey: title),
+            //    diagnostic);
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
+                    createChangedDocument: c => MakeConstAsync(context.Document, declaration, c),
                     equivalenceKey: title),
                 diagnostic);
         }
 
-        private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)
+        private async Task<Document> MakeConstAsync(Document document, LocalDeclarationStatementSyntax localDeclaration, CancellationToken cancellationToken)
         {
-            // Compute new uppercase name.
-            var identifierToken = typeDecl.Identifier;
-            var newName = identifierToken.Text.ToUpperInvariant();
+            var firstToken = localDeclaration.GetFirstToken();
+            var leadingTrivia = firstToken.LeadingTrivia;
+            var trimmedLocal = localDeclaration.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(SyntaxTriviaList.Empty));
 
-            // Get the symbol representing the type to be renamed.
-            var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var typeSymbol = semanticModel.GetDeclaredSymbol(typeDecl, cancellationToken);
+            var constToken = SyntaxFactory.Token(leadingTrivia, SyntaxKind.ConstKeyword, SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
 
-            // Produce a new solution that has all references to that type renamed, including the declaration.
-            var originalSolution = document.Project.Solution;
-            var optionSet = originalSolution.Workspace.Options;
-            var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, newName, optionSet, cancellationToken).ConfigureAwait(false);
+            var newModifiers = trimmedLocal.Modifiers.Insert(0, constToken);
+            //var newLocal = trimmedLocal.WithModifiers(newModifiers).WithDeclaration(localDeclaration.Declaration);
 
-            // Return the new solution with the now-uppercase type name.
-            return newSolution;
+            var variableDeclaration = localDeclaration.Declaration;
+            var variableTypeName = variableDeclaration.Type;
+            if (variableTypeName.IsVar)
+            {
+                var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+
+                var aliasInfo = semanticModel.GetAliasInfo(variableTypeName);
+                if (aliasInfo == null)
+                {
+                    var type = semanticModel.GetTypeInfo(variableTypeName).ConvertedType;
+
+                    if (type.Name != "var")
+                    {
+                        var typeName = SyntaxFactory.ParseTypeName(type.ToDisplayString())
+                            .WithLeadingTrivia(variableTypeName.GetLeadingTrivia())
+                            .WithTrailingTrivia(variableTypeName.GetTrailingTrivia());
+
+                        var simplifiedTypeName = typeName.WithAdditionalAnnotations(Simplifier.Annotation);
+
+                        variableDeclaration = variableDeclaration.WithType(simplifiedTypeName);
+                    }
+                }
+            }
+
+            var newLocal = trimmedLocal.WithModifiers(newModifiers)
+                .WithDeclaration(variableDeclaration);
+
+
+
+            var formattedLocal = newLocal.WithAdditionalAnnotations(Microsoft.CodeAnalysis.Formatting.Formatter.Annotation);
+
+            var oldRoot = await document.GetSyntaxRootAsync(cancellationToken);
+            var newRoot = oldRoot.ReplaceNode(localDeclaration, formattedLocal);
+
+            return document.WithSyntaxRoot(newRoot);
+
         }
+
+
+        //private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)
+        //{
+        //    // Compute new uppercase name.
+        //    var identifierToken = typeDecl.Identifier;
+        //    var newName = identifierToken.Text.ToUpperInvariant();
+
+        //    // Get the symbol representing the type to be renamed.
+        //    var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+        //    var typeSymbol = semanticModel.GetDeclaredSymbol(typeDecl, cancellationToken);
+
+        //    // Produce a new solution that has all references to that type renamed, including the declaration.
+        //    var originalSolution = document.Project.Solution;
+        //    var optionSet = originalSolution.Workspace.Options;
+        //    var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, typeSymbol, newName, optionSet, cancellationToken).ConfigureAwait(false);
+
+        //    // Return the new solution with the now-uppercase type name.
+        //    return newSolution;
+        //}
     }
 }

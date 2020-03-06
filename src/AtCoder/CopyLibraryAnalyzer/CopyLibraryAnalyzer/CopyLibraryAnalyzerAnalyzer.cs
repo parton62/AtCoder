@@ -30,8 +30,75 @@ namespace CopyLibraryAnalyzer
         {
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            //context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.LocalDeclarationStatement);
         }
+
+        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        {
+            var localDeclaration = (LocalDeclarationStatementSyntax)context.Node;
+
+            if (localDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword)) return;
+            // Ensure that all variables in the local declaration have initializers that
+            // are assigned with constant values.
+
+            var variableTypeName = localDeclaration.Declaration.Type;
+            var variableType = context.SemanticModel.GetTypeInfo(variableTypeName).ConvertedType;
+            foreach (var variable in localDeclaration.Declaration.Variables)
+            {
+                var initializer = variable.Initializer;
+                if (initializer == null)
+                {
+                    return;
+                }
+
+                var conversion = context.SemanticModel.ClassifyConversion(initializer.Value, variableType);
+                if (!conversion.Exists || conversion.IsUserDefined)
+                {
+                    return;
+                }
+
+                var constantValue = context.SemanticModel.GetConstantValue(initializer.Value);
+                if (!constantValue.HasValue)
+                {
+                    return;
+                }
+
+                if (constantValue.Value is string)
+                {
+                    if (variableType.SpecialType != SpecialType.System_String)
+                    {
+                        return;
+                    }
+                }
+                else if (variableType.IsReferenceType && constantValue.Value != null)
+                {
+                    return;
+                }
+
+            }
+
+            // Perform data flow analysis on the local declaration.
+            var dataFlowAnalysis = context.SemanticModel.AnalyzeDataFlow(localDeclaration);
+
+            foreach (var variable in localDeclaration.Declaration.Variables)
+            {
+                // Retrieve the local symbol for each variable in the local declaration
+                // and ensure that it is not written outside of the data flow analysis region.
+                var variableSymbol = context.SemanticModel.GetDeclaredSymbol(variable);
+                if (dataFlowAnalysis.WrittenOutside.Contains(variableSymbol))
+                {
+                    return;
+                }
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule, context.Node.GetLocation()));
+
+        }
+
 
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {

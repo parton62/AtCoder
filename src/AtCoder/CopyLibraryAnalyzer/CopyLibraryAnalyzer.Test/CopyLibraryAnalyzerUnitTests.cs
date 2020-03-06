@@ -11,64 +11,257 @@ namespace CopyLibraryAnalyzer.Test
     [TestClass]
     public class UnitTest : CodeFixVerifier
     {
-
         //No diagnostics expected to show up
-        [TestMethod]
-        public void TestMethod1()
+        [DataTestMethod]
+        [DataRow(""),
+         DataRow(VariableAssigned),
+         DataRow(AlreadyConst),
+         DataRow(NoInitializer),
+         DataRow(InitializerNotConstant),
+         DataRow(MultipleInitializers),
+         DataRow(DeclarationIsInvalid),
+         DataRow(ReferenceTypeIsntString)]
+        public void WhenTestCodeIsValidNoDiagnosticIsTriggered(string testCode)
         {
-            var test = @"";
-
-            VerifyCSharpDiagnostic(test);
+            VerifyCSharpDiagnostic(testCode);
         }
 
-        //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
-        public void TestMethod2()
+        [DataTestMethod]
+        [DataRow(LocalIntCouldBeConstant, LocalIntCouldBeConstantFixed, 10, 13),
+         DataRow(ConstantIsString, ConstantIsStringFixed, 10, 13),
+         DataRow(DeclarationUsesVar, DeclarationUsesVarFixedHasType, 10, 13),
+         DataRow(StringDeclarationUsesVar, StringDeclarationUsesVarFixedHasType, 10, 13)]
+        public void WhenDiagosticIsRaisedFixUpdatesCode(
+            string test,
+            string fixTest,
+            int line,
+            int column)
         {
-            var test = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
-
-    namespace ConsoleApplication1
-    {
-        class TypeName
-        {   
-        }
-    }";
             var expected = new DiagnosticResult
             {
-                Id = "CopyLibraryAnalyzer",
-                Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
+                Id = CopyLibraryAnalyzerAnalyzer.DiagnosticId,
+                Message = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources)).ToString(),
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 11, 15)
+                    new DiagnosticResultLocation("Test0.cs", line, column)
                         }
             };
 
             VerifyCSharpDiagnostic(test, expected);
 
-            var fixtest = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
+            VerifyCSharpFix(test, fixTest);
+        }
 
-    namespace ConsoleApplication1
+
+        private const string LocalIntCouldBeConstant = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
     {
-        class TYPENAME
-        {   
+        static void Main(string[] args)
+        {
+            int i = 0;
+            Console.WriteLine(i);
         }
-    }";
-            VerifyCSharpFix(test, fixtest);
-        }
+    }
+}";
 
+        private const string LocalIntCouldBeConstantFixed = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const int i = 0;
+            Console.WriteLine(i);
+        }
+    }
+}";
+
+        private const string VariableAssigned = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int i = 0;
+            Console.WriteLine(i++);
+        }
+    }
+}";
+        private const string AlreadyConst = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const int i = 0;
+            Console.WriteLine(i);
+        }
+    }
+}";
+        private const string NoInitializer = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int i;
+            i = 0;
+            Console.WriteLine(i);
+        }
+    }
+}";
+        private const string InitializerNotConstant = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int i = DateTime.Now.DayOfYear;
+            Console.WriteLine(i);
+        }
+    }
+}";
+        private const string MultipleInitializers = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int i = 0, j = DateTime.Now.DayOfYear;
+            Console.WriteLine(i, j);
+        }
+    }
+}";
+        private const string DeclarationIsInvalid = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int x = ""abc"";
+        }
+    }
+}";
+        private const string ReferenceTypeIsntString = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            object s = ""abc"";
+        }
+    }
+}";
+
+        private const string ConstantIsString = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string s = ""abc"";
+        }
+    }
+}";
+
+        private const string ConstantIsStringFixed = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const string s = ""abc"";
+        }
+    }
+}";
+        private const string DeclarationUsesVar = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var item = 4;
+        }
+    }
+}";
+
+        private const string DeclarationUsesVarFixedHasType = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const int item = 4;
+        }
+    }
+}";
+        private const string StringDeclarationUsesVar = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var item = ""abc"";
+        }
+    }
+}";
+        private const string StringDeclarationUsesVarFixedHasType = @"
+using System;
+
+namespace MakeConstTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            const string item = ""abc"";
+        }
+    }
+}";
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
             return new CopyLibraryAnalyzerCodeFixProvider();
