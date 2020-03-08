@@ -8,7 +8,7 @@ namespace AtCoder
     public class UnionFind
     {
         private int[] _data;
-
+        
         public UnionFind(int size)
         {
             _data = Enumerable.Repeat(-1, size).ToArray();

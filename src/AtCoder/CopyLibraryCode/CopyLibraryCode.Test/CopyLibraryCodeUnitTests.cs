@@ -13,60 +13,28 @@ namespace CopyLibraryCode.Test
     {
 
         //No diagnostics expected to show up
-        [TestMethod]
-        public void TestMethod1()
+        [DataTestMethod]
+        [DataRow(変数宣言のみ)]
+        [DataRow(クラス参照途中)]
+        [DataRow(変数参照)]
+        [DataRow(いきなりa)]
+        public void 何もせずスルー(string test)
         {
-            var test = @"";
-
             VerifyCSharpDiagnostic(test);
         }
-
-        //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
-        public void TestMethod2()
+        [DataTestMethod]
+        [DataRow(別名前空間Hoge参照, 10, 13, "Hoge")]
+        public void ひっかかる(string test, int line, int column, string name)
         {
-            var test = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
-
-    namespace ConsoleApplication1
-    {
-        class TypeName
-        {   
-        }
-    }";
             var expected = new DiagnosticResult
             {
-                Id = "CopyLibraryCode",
-                Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
-                Severity = DiagnosticSeverity.Warning,
-                Locations =
-                    new[] {
-                            new DiagnosticResultLocation("Test0.cs", 11, 15)
-                        }
+                Id = CopyLibraryCodeAnalyzer.DiagnosticId,
+                Message = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources), name).ToString(),
+                Severity = DiagnosticSeverity.Info,
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, column) }
             };
-
+            
             VerifyCSharpDiagnostic(test, expected);
-
-            var fixtest = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
-
-    namespace ConsoleApplication1
-    {
-        class TYPENAME
-        {   
-        }
-    }";
-            VerifyCSharpFix(test, fixtest);
         }
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
@@ -78,5 +46,84 @@ namespace CopyLibraryCode.Test
         {
             return new CopyLibraryCodeAnalyzer();
         }
+
+
+        private const string 変数宣言のみ = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        void Method()
+        {
+            var a = 1;
+            Console.WriteLine(a);
+        }
     }
+}
+";
+
+        private const string クラス参照途中 = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        void Method()
+        {
+            Hoge
+        }
+    }
+    class Hoge { }
+}
+";
+        private const string 変数参照 = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        void Method()
+        {
+            var a = 1;
+            a
+        }
+    }
+}
+";
+        private const string いきなりa = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        a
+    }
+}
+";
+        private const string 別名前空間Hoge参照 = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        void Method()
+        {
+            Hoge
+        }
+    }
+}
+namespace ConsoleApplication2
+{
+    class Hoge { }
+}
+";
+    }
+
+
 }

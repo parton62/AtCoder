@@ -18,7 +18,7 @@ namespace CopyLibraryCode
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CopyLibraryCodeCodeFixProvider)), Shared]
     public class CopyLibraryCodeCodeFixProvider : CodeFixProvider
     {
-        private const string title = "Make uppercase";
+        private const string title = "Copy class definition source code";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -38,19 +38,52 @@ namespace CopyLibraryCode
             // TODO: Replace the following code with your own analysis, generating a CodeAction for each fix to suggest
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-
+            var name = diagnostic.Properties["name"];
             // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+            //var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+
+
+
+            //var identifier = root.FindNode(diagnosticSpan).AncestorsAndSelf().OfType<IdentifierNameSyntax>().First();
+            var namespaceDecl = root.FindNode(diagnosticSpan).Ancestors().OfType<NamespaceDeclarationSyntax>().First();
+            var ns = namespaceDecl.Name.ToString();//diagnostic.Properties["ns"];
+
+            var semanticModel = await context.Document.GetSemanticModelAsync();
+
+            var classDefs = semanticModel.Compilation.SyntaxTrees
+                .SelectMany(t => t.GetRoot().DescendantNodes())
+                .OfType<ClassDeclarationSyntax>()
+                .Where(c => c.Identifier.Text == name)
+                .Where(c => c
+                    .AncestorsAndSelf()
+                    .OfType<NamespaceDeclarationSyntax>()
+                    .First().Name.ToString() != ns)
+                .ToList();
+
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
+                    createChangedSolution: c => CopySourceCodeAsync(context.Document, namespaceDecl, classDefs.First(), c),
                     equivalenceKey: title),
                 diagnostic);
         }
 
+        private async Task<Solution> CopySourceCodeAsync(Document document, NamespaceDeclarationSyntax namespaceDecl, ClassDeclarationSyntax classDecl, CancellationToken cancellationToken)
+        {
+            //var  = await document.GetSyntaxTreeAsync(cancellationToken);
+            
+            var newMembers = namespaceDecl.AddMembers(classDecl);
+
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+            var newRoot = root.ReplaceNode(namespaceDecl, newMembers);
+
+
+            //var newSolution = document.Project.Solution.WithDocumentText(document.Id, document.Tre)
+
+            return document.Project.Solution.WithDocumentSyntaxRoot(document.Id, newRoot);
+        }
         private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)
         {
             // Compute new uppercase name.
