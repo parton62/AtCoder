@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AtCoder
+namespace AtCoder.Library
 {
     public class UnionFind
     {

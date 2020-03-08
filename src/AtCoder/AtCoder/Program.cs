@@ -1,14 +1,25 @@
-﻿using System;
+﻿using AtCoder.Executors;
+using System;
 using System.Collections.Generic;
 
 namespace AtCoder
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Sample();
+            ExecuteLive(Contests.ABC158.A.Main);
         }
+
+        static void ExecuteLive(Action<string[]> main)
+        {
+            var e = new DebugExecutor() { Main = main };
+            
+        }
+        
+
+
+
 
         static void Sample()
         {
