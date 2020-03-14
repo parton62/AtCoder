@@ -2,25 +2,66 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace AtCoder.Contests.ABC158
+namespace AtCoder.Contests.ABC157
 {
     /// <summary>
-    /// StationandBus
+    /// 
     /// </summary>
-    static class A
+    static class C
     {
         static void Main(string[] args)
         {
-            var s = Console.ReadLine();
+            var nm = ReadIntArray();
+            var n = nm[0];
+            var m = nm[1];
 
-            if (s[0] == s[1] && s[0] == s[2])
+            var digit = Enumerable.Repeat(-1, n).ToArray();
+
+            for (int i = 0; i < m; i++)
             {
-                Console.WriteLine("No");
+                var sc = ReadIntArray();
+                var s = sc[0] - 1;
+                var c = sc[1];
+
+                if (digit[s] == -1)
+                {
+                    digit[s] = c;
+                    continue;
+                }
+                else if(digit[s] != c)
+                {
+                    Console.WriteLine(-1);
+                    return;
+                }
+            }
+
+            if (n > 1 && digit[0] == 0)
+            {
+                Console.WriteLine(-1);
+                return;
+            }
+
+            if (n==1 && digit[0] < 0)
+            {
+                Console.WriteLine(0);
+                return;
+            }
+
+            var result = 0;
+            if (digit[0] < 0)
+            {
+                result = 1;
             }
             else
             {
-                Console.WriteLine("Yes");
+                result = digit[0];
             }
+            for (int i = 1; i < n; i++)
+            {
+                if (digit[i] < 0) digit[i] = 0;
+                result = result * 10 + digit[i];
+            }
+            Console.WriteLine(result);
         }
 
         #region Console

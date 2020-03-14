@@ -11,16 +11,19 @@ namespace AtCoder.Executors
         //private static string _probremURL = "https://atcoder.jp/contests/{0}/tasks/{0}_{1}";
 
         //public string DownloadedTestCaseFolder { get; set; } = "Live";
-
+        public int? Index { get; set; } = null;
 
         public override void Execute()
         {
             //base.Execute();
-
-
+            Console.WriteLine(Probrem.Contest + " " + Probrem.ID);
             var d = new LiveTestCaseProvider();
+
+            var index = 1;
             foreach (var test in d.Create(Probrem))
             {
+                if (Index.HasValue && Index.Value != index++) continue;
+
                 var display = new StringBuilder();
                 display.AppendLine(test.Name);
 

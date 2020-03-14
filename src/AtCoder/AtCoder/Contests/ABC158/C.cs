@@ -5,22 +5,26 @@ using System.Collections.Generic;
 namespace AtCoder.Contests.ABC158
 {
     /// <summary>
-    /// StationandBus
+    /// 
     /// </summary>
-    static class A
+    static class C
     {
         static void Main(string[] args)
         {
-            var s = Console.ReadLine();
+            var ab = ReadIntArray();
+            var a = ab[0];
+            var b = ab[1];
 
-            if (s[0] == s[1] && s[0] == s[2])
+            for (int i = 1; i <= 1000; i++)
             {
-                Console.WriteLine("No");
+                if ((int)(0.08 * i) == a && (int)(0.1 * i) == b)
+                {
+                    Console.WriteLine(i);
+                    return;
+                }
             }
-            else
-            {
-                Console.WriteLine("Yes");
-            }
+
+            Console.WriteLine(-1);
         }
 
         #region Console

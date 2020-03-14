@@ -57,6 +57,7 @@
     <ProjectReference Include="..\CopyCoder\CopyCoder.csproj">
       <Project>{ae3bca32-4ab0-4b04-b7ff-c666a4103178}</Project>
       <Name>CopyCoder</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

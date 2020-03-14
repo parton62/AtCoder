@@ -1,25 +1,66 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AtCoder.Contests.ABC158
 {
     /// <summary>
-    /// StationandBus
+    /// 
     /// </summary>
-    static class A
+    static class D
     {
         static void Main(string[] args)
         {
             var s = Console.ReadLine();
+            var q = ReadInt();
 
-            if (s[0] == s[1] && s[0] == s[2])
+            var forward = true;
+            var f = new StringBuilder();
+            var b = new StringBuilder();
+
+            for (int i = 0; i < q; i++)
             {
-                Console.WriteLine("No");
+                var qs = Console.ReadLine().Split();
+                if (qs.Length == 1)
+                {
+                    forward = !forward;
+                    continue;
+                }
+
+                var f1 = qs[1] == "1";
+                if (forward ^ f1)
+                {
+                    b.Append(qs[2]);
+                }
+                else
+                {
+                    f.Append(qs[2]);
+                }
+            }
+
+            if (forward)
+            {
+                var ss = f.ToString();
+                for (int i = ss.Length - 1; i >= 0; i--)
+                {
+                    Console.Write(ss[i]);
+                }
+                Console.Write(s);
+                Console.Write(b.ToString());
             }
             else
             {
-                Console.WriteLine("Yes");
+                var ss = b.ToString();
+                for (int i = ss.Length - 1; i >= 0; i--)
+                {
+                    Console.Write(ss[i]);
+                }
+                for (int i = s.Length - 1; i >= 0; i--)
+                {
+                    Console.Write(s[i]);
+                }
+                Console.Write(f.ToString());
             }
         }
 

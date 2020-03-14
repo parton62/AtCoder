@@ -2,25 +2,18 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace AtCoder.Contests.ABC158
+namespace AtCoder.Contests.ABC157
 {
     /// <summary>
-    /// StationandBus
+    /// 
     /// </summary>
     static class A
     {
         static void Main(string[] args)
         {
-            var s = Console.ReadLine();
+            var n = ReadInt();
 
-            if (s[0] == s[1] && s[0] == s[2])
-            {
-                Console.WriteLine("No");
-            }
-            else
-            {
-                Console.WriteLine("Yes");
-            }
+            Console.WriteLine((n + 1) / 2);
         }
 
         #region Console

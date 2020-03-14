@@ -6,6 +6,13 @@ namespace AtCoder.Executors
 {
     class DebugExecutor : Executor
     {
-        
+        public override void Execute()
+        {
+            while (true)
+            {
+                ExecuteMain();
+                Console.WriteLine();
+            }
+        }
     }
 }
