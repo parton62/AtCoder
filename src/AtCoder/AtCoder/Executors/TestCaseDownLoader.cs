@@ -4,8 +4,11 @@ using System.Text;
 
 namespace AtCoder.Executors
 {
-    class DebugExecutor : Executor
+    class TestCaseDownLoader
     {
-        
+        public void Download(Probrem target)
+        {
+
+        }
     }
 }

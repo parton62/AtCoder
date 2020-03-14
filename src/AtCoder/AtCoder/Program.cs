@@ -8,13 +8,14 @@ namespace AtCoder
     {
         public static void Main(string[] args)
         {
-            ExecuteLive(Contests.ABC158.A.Main);
+            ExecuteLive(typeof(Contests.ABC158.A));
         }
 
-        static void ExecuteLive(Action<string[]> main)
+        static void ExecuteLive(Type probrem)
         {
-            var e = new DebugExecutor() { Main = main };
-            
+            var e = new LiveExecutor();
+            e.Initialize(probrem);
+            e.Execute();
         }
         
 
