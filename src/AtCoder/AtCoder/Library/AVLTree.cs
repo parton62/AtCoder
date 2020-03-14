@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AtCoder
+namespace AtCoder.Library
 {
     class AVLTree<T>
     {
