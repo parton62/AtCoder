@@ -15,8 +15,8 @@
     <ProjectGuid>{187DF5E3-637D-46CC-AA80-078D7C93AEAB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CopyLibraryCode.Vsix</RootNamespace>
-    <AssemblyName>CopyLibraryCode</AssemblyName>
+    <RootNamespace>CopyCoder.Vsix</RootNamespace>
+    <AssemblyName>CopyCoder</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -54,9 +54,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CopyLibraryCode\CopyLibraryCode.csproj">
-      <Project>{3F9C5AFC-09A2-4770-AB25-8B35F5C3FB50}</Project>
-      <Name>CopyLibraryCode</Name>
+    <ProjectReference Include="..\CopyCoder\CopyCoder.csproj">
+      <Project>{ae3bca32-4ab0-4b04-b7ff-c666a4103178}</Project>
+      <Name>CopyCoder</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

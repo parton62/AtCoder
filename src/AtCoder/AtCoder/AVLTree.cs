@@ -10,7 +10,7 @@ namespace AtCoder
 
         class Node
         {
-            private AVLTree<T> _tree;
+            //private AVLTree<T> _tree;
 
             public Node Left { get; set; }
             public Node Right { get; set; }

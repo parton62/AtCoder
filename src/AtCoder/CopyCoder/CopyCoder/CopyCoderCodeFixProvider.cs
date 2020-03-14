@@ -13,16 +13,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Rename;
 using Microsoft.CodeAnalysis.Text;
 
-namespace CopyLibraryCode
+namespace CopyCoder
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CopyLibraryCodeCodeFixProvider)), Shared]
-    public class CopyLibraryCodeCodeFixProvider : CodeFixProvider
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CopyCoderCodeFixProvider)), Shared]
+    public class CopyCoderCodeFixProvider : CodeFixProvider
     {
         private const string title = "Copy class definition source code";
 
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(CopyLibraryCodeAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(CopyCoderAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

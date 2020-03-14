@@ -4,9 +4,9 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
-using CopyLibraryCode;
+using CopyCoder;
 
-namespace CopyLibraryCode.Test
+namespace CopyCoder.Test
 {
     [TestClass]
     public class UnitTest : CodeFixVerifier
@@ -28,7 +28,7 @@ namespace CopyLibraryCode.Test
         {
             var expected = new DiagnosticResult
             {
-                Id = CopyLibraryCodeAnalyzer.DiagnosticId,
+                Id = CopyCoderAnalyzer.DiagnosticId,
                 Message = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources), name).ToString(),
                 Severity = DiagnosticSeverity.Info,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", line, column) }
@@ -39,12 +39,12 @@ namespace CopyLibraryCode.Test
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
-            return new CopyLibraryCodeCodeFixProvider();
+            return new CopyCoderCodeFixProvider();
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
         {
-            return new CopyLibraryCodeAnalyzer();
+            return new CopyCoderAnalyzer();
         }
 
 
