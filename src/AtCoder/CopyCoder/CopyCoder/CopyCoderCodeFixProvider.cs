@@ -57,7 +57,7 @@ namespace CopyCoder
                 .Where(c => c
                     .AncestorsAndSelf()
                     .OfType<NamespaceDeclarationSyntax>()
-                    .FirstOrDefault()?.Name.ToString() != ns)
+                    .First().Name.ToString() != ns)
                 .ToList();
 
 
