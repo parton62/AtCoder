@@ -36,6 +36,13 @@ namespace CopyCoder.Test
             
             VerifyCSharpDiagnostic(test, expected);
         }
+        [DataTestMethod]
+        [DataRow(別名前空間Hoge参照, 別名前空間Hoge参照fix)]
+        [DataRow(名前空間なし, 名前空間なしfix)]
+        public void 置き換え(string source, string edited)
+        {
+            VerifyCSharpFix(source, edited, allowNewCompilerDiagnostics:true);
+        }
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
@@ -117,6 +124,25 @@ namespace ConsoleApplication1
             Hoge
         }
     }
+}
+namespace ConsoleApplication2
+{
+    class Hoge { }
+}
+";
+        private const string 別名前空間Hoge参照fix = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        void Method()
+        {
+            Hoge
+        }
+    }
+    class Hoge { }
 }
 namespace ConsoleApplication2
 {
