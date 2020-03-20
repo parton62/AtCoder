@@ -5,48 +5,70 @@ using System.Collections.Generic;
 namespace AtCoder.Contests.ABC157
 {
     /// <summary>
-    /// FriendSuggestions
+    /// 
     /// </summary>
-    static class D
+    static class E
     {
         static void Main(string[] args)
         {
             var n = NextInt();
-            var m = NextInt();
-            var k = NextInt();
+            var s = Next();
+            var q = NextInt();
 
-            var blocked = new List<int>[n];
+            var chars = Enumerable.Range(0, 26).Select(i => new SortedList<int, int>()).ToArray();
             for (int i = 0; i < n; i++)
             {
-                blocked[i] = new List<int>();
-            }
-            var uf = new UnionFind(n);
-
-            for (int i = 0; i < m; i++)
-            {
-                var a = NextInt() - 1;
-                var b = NextInt() - 1;
-                uf.Unite(a, b);
-                blocked[a].Add(b);
-                blocked[b].Add(a);
+                var c = s[i] - 'a';
+                chars[c].Add(i, i);
             }
 
-            for (int i = 0; i < k; i++)
+            for (int j = 0; j < q; j++)
             {
-                var c = NextInt() - 1;
-                var d = NextInt() - 1;
-                blocked[c].Add(d);
-                blocked[d].Add(c);
-            }
+                var type = NextInt();
+                if (type == 1)
+                {
+                    var i = NextInt();
+                    var c = Next();
 
-            for (int i = 0; i < n; i++)
-            {
-                var s = uf.Size(i) - 1;
-                var b = blocked[i];
-                s -= b.Count(j => uf.IsSame(i, j));
+                    for (int k = 0; k < 26; k++)
+                    {
+                        var cs = chars[k];
+                        if (k == c[0] - 'a')
+                        {
+                            var found = cs.IndexOfKey(i);
+                            if(found < 0)
+                            {
+                                cs.Add(i, i);
+                            }
+                        }
+                        else
+                        {
+                            cs.Remove(i);
+                        }
+                    }
+                }
+                else
+                {
+                    var l = NextInt() - 1;
+                    var r = NextInt() - 1;
 
-                Console.Write(s);
-                Console.Write(" ");
+                    var sum = 0;
+                    for (int k = 0; k < 26; k++)
+                    {
+                        var cs = chars[k];
+                        var li = cs.IndexOfKey(l);
+                        if (li < 0) li = ~li;
+                        var ri = cs.IndexOfKey(r);
+                        if (ri < 0) ri = ~ri;
+
+                        if (li < ri)
+                        {
+                            sum++;
+                        }
+                    }
+                    Console.WriteLine(sum);
+                }
+
             }
         }
 
@@ -72,7 +94,6 @@ namespace AtCoder.Contests.ABC157
         {
             return long.Parse(Next());
         }
-
         static int ReadInt()
         {
             return int.Parse(Console.ReadLine());
@@ -134,47 +155,5 @@ namespace AtCoder.Contests.ABC157
             return r;
         }
         #endregion
-    }
-    public class UnionFind
-    {
-        private int[] _data;
-        
-        public UnionFind(int size)
-        {
-            _data = Enumerable.Repeat(-1, size).ToArray();
-        }
-
-        public bool IsSame(int x, int y)
-        {
-            return Root(x) == Root(y);
-        }
-
-        public void Unite(int x , int y)
-        {
-            x = Root(x);
-            y = Root(y);
-
-            if (x == y) return;
-
-            if (_data[x] > _data[y])
-            {
-                var t = x;
-                x = y;
-                y = t;
-            }
-            _data[x] += _data[y];
-            _data[y] = x;
-        }
-
-        public int Size(int x)
-        {
-            return -_data[Root(x)];
-        }
-
-        private int Root(int x)
-        {
-            return _data[x] < 0 ? x : _data[x] = Root(_data[x]);
-        }
-        
     }
 }
