@@ -35,7 +35,7 @@ namespace AtCoder.Library
             _data[x] += _data[y];
             _data[y] = x;
         }
-public int Size(int x)
+        public int Size(int x)
         {
             return -_data[Root(x)];
         }
