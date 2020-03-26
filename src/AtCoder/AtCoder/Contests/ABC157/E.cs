@@ -15,11 +15,11 @@ namespace AtCoder.Contests.ABC157
             var s = Next();
             var q = NextInt();
 
-            var chars = Enumerable.Range(0, 26).Select(i => new SortedList<int, int>()).ToArray();
+            var chars = Enumerable.Range(0, 26).Select(i => new List<int>()).ToArray();
             for (int i = 0; i < n; i++)
             {
                 var c = s[i] - 'a';
-                chars[c].Add(i, i);
+                chars[c].Add(i);
             }
 
             for (int j = 0; j < q; j++)
@@ -27,23 +27,26 @@ namespace AtCoder.Contests.ABC157
                 var type = NextInt();
                 if (type == 1)
                 {
-                    var i = NextInt();
+                    var i = NextInt() - 1;
                     var c = Next();
 
                     for (int k = 0; k < 26; k++)
                     {
                         var cs = chars[k];
+                        var found = cs.BinarySearch(i);
                         if (k == c[0] - 'a')
                         {
-                            var found = cs.IndexOfKey(i);
                             if(found < 0)
                             {
-                                cs.Add(i, i);
+                                cs.Insert(~found, i);
                             }
                         }
                         else
                         {
-                            cs.Remove(i);
+                            if (found >= 0)
+                            {
+                                cs.RemoveAt(found);
+                            }
                         }
                     }
                 }
@@ -56,10 +59,8 @@ namespace AtCoder.Contests.ABC157
                     for (int k = 0; k < 26; k++)
                     {
                         var cs = chars[k];
-                        var li = cs.IndexOfKey(l);
-                        if (li < 0) li = ~li;
-                        var ri = cs.IndexOfKey(r);
-                        if (ri < 0) ri = ~ri;
+                        var li = BinarySearch.LowerBound(cs, l);
+                        var ri = BinarySearch.UpperBound(cs, r);
 
                         if (li < ri)
                         {
@@ -155,5 +156,67 @@ namespace AtCoder.Contests.ABC157
             return r;
         }
         #endregion
+    }
+    class BinarySearch
+    {
+        /// <summary>
+        /// value 以上となる値を持つ最小のindex
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comp"></param>
+        /// <returns></returns>
+        public static int LowerBound<T>(IList<T> list, T value, IComparer<T> comp = null)
+        {
+            if (comp == null) comp = Comparer<T>.Default;
+
+            var l = 0;
+            var r = list.Count;
+
+            while (l + 1 < r)
+            {
+                var m = l + (r - l) / 2;
+                if (comp.Compare(value, list[m]) > 0)
+                {
+                    l = m;
+                }
+                else
+                {
+                    r = m;
+                }
+            }
+
+            return r;
+        }
+        /// <summary>
+        /// value より大きい値を持つ最小のindex
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comp"></param>
+        /// <returns></returns>
+        public static int UpperBound<T>(IList<T> list, T value, IComparer<T> comp = null)
+        {
+            if (comp == null) comp = Comparer<T>.Default;
+
+            var l = 0;
+            var r = list.Count;
+
+            while (l + 1 < r)
+            {
+                var m = l + (r - l) / 2;
+                if (comp.Compare(value, list[m]) >= 0)
+                {
+                    l = m;
+                }
+                else
+                {
+                    r = m;
+                }
+            }
+            return r;
+        }
     }
 }
