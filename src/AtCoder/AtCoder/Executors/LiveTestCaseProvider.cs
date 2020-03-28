@@ -29,9 +29,6 @@ namespace AtCoder.Executors
 
             if (!di.EnumerateFiles(DownloadFolder).Any())
             {
-                //var context = CreateContext();
-                //context.SetCookie(new Url("https://atcoder.jp"), @"REVEL_SESSION=3be5de2287655806e811991ff58b71c2cff1eb98-%00csrf_token%3A2%2FzAK%2BS7ZZ1YWwkfJJfA98BrfGLAg%2BSIBcnnxWTRqE8%3D%00%00SessionKey%3A31deb3e3b2801d69ef5e0dca56ca35e18ae1d41015cc13d49775f38c186c276d9c57db2f02c7ec-7a51ec3706f79d4d86483d16930695090f8f0cfdc032da58d61f2a0234a06152%00%00UserScreenName%3Aparton%00%00Rating%3A1217%00%00a%3Afalse%00%00w%3Afalse%00%00_TS%3A1600792075%00%00UserName%3Aparton%00");
-                //DownloadTestCase(context, di.FullName, probrem.ID.ToString(), string.Format(ProbremURL, probrem.Contest, probrem.ID.ToString()));
                 using (var chrome = CreateDriver())
                 {
                     Login(chrome);
@@ -82,43 +79,6 @@ namespace AtCoder.Executors
 
             return testCase;
         }
-
-        //static private IBrowsingContext CreateContext()
-        //{
-        //    var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-        //    return context;
-        //}
-
-        //static private string Login(IBrowsingContext context, string username, string password)
-        //{
-        //    var document = context.OpenAsync(LoginURL).Result;
-        //    var hidden = document.QuerySelector("form input[name=\"csrf_token\"]");
-        //    var token = hidden.GetAttribute("value");
-
-        //    var form = context.Active.QuerySelector("#main-container form") as IHtmlFormElement;
-        //    document = form.SubmitAsync(new { username, password, csrf_token = token }).Result;
-
-        //    var cookies = context.Active.Cookie;
-        //    return cookies;
-        //}
-
-        //private void DownloadTestCase(IBrowsingContext context, string folder, string name, string url)
-        //{   
-        //    var document = context.OpenAsync(url).Result;
-        //    var taskStatement = document.QuerySelector("div#task-statement");
-        //    var h3s = taskStatement.QuerySelectorAll("h3");
-        //    var pres = h3s.Where(h => h.TextContent.StartsWith("入力例") || h.TextContent.StartsWith("出力例"))
-        //                  .Select(h => h.NextSibling).ToArray();
-
-        //    for (int i = 0; i < pres.Length / 2; i++)
-        //    {
-        //        var inputNode = pres[i * 2];
-        //        var outputNode = pres[i * 2 + 1];
-
-        //        File.WriteAllText(Path.Combine(folder, $"testcase{i+1}.txt"), inputNode.TextContent + Environment.NewLine + outputNode.TextContent);
-        //    }
-
-        //}
 
         private ChromeDriver CreateDriver()
         {
@@ -180,50 +140,4 @@ namespace AtCoder.Executors
             }
         }
     }
-
-    //class ChromeCookie
-    //{
-    //    static public void GetGookie()
-    //    {
-    //        var hostName = "atcoder.jp";
-
-    //        var dbPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Google\Chrome\User Data\Default\Cookies";
-
-    //        if (!File.Exists(dbPath)) return;
-
-    //        //var connectionString = $"Data Source={dbPath};";
-    //        var sb = new SqliteConnectionStringBuilder()
-    //        {
-    //            DataSource = dbPath,
-    //        };
-    //        //sb.Ver
-    //        using (var con = new SqliteConnection($"Data Source={dbPath};"))
-    //        using (var com = con.CreateCommand())
-    //        {
-    //            var prm = com.CreateParameter();
-    //            prm.ParameterName = "hostName";
-    //            prm.Value = hostName;
-    //            com.Parameters.Add(prm);
-
-    //            com.CommandText = "SELECT name, encrypted_value FROM cookies WHERE host_key = @hostName";
-
-    //            con.Open();
-                
-    //            using (var reader = com.ExecuteReader())
-    //            {
-    //                while (reader.Read())
-    //                {
-    //                    //Console.WriteLine(reader[0] + ":" + reader[1]);
-    //                    var encryptedData = (byte[])reader[1];
-    //                    var decodedData = System.Security.Cryptography.ProtectedData.Unprotect(encryptedData, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
-    //                    var plainText = Encoding.ASCII.GetString(decodedData);
-
-    //                    Console.WriteLine(" " + plainText);
-    //                }
-    //            }
-    //        }
-    //    }
-
-
-    //}
 }
