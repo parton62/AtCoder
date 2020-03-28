@@ -8,14 +8,10 @@ namespace AtCoder.Executors
 {
     class LiveExecutor : Executor
     {
-        //private static string _probremURL = "https://atcoder.jp/contests/{0}/tasks/{0}_{1}";
-
-        //public string DownloadedTestCaseFolder { get; set; } = "Live";
         public int? Index { get; set; } = null;
 
         public override void Execute()
         {
-            //base.Execute();
             Console.WriteLine(Probrem.Contest + " " + Probrem.ID);
             var d = new LiveTestCaseProvider();
 
@@ -27,20 +23,18 @@ namespace AtCoder.Executors
                 var display = new StringBuilder();
                 display.AppendLine(test.Name);
 
-                using (var s = new MemoryStream())
-                using (var w = new StreamWriter(s, Encoding.ASCII))
+                var output = new StringBuilder();
+                using (var w = new StringWriter(output))
                 {
                     Console.SetIn(test.GetInputStream());
                     Console.SetOut(w);
-                    //writer.Write(test.GetInputStream().ReadToEnd());
+
                     var sw = new Stopwatch();
                     sw.Start();
                     ExecuteMain();
                     sw.Stop();
-                    w.Flush();
-                    
-                    var result = Encoding.ASCII.GetString(s.ToArray()).Trim();
-                    //var result = reader.ReadToEnd();
+
+                    var result = output.ToString().Trim();
                     var answer = test.GetOutputStream().ReadToEnd().Trim();
 
                     display.Append("result:").AppendLine(result);
@@ -67,18 +61,5 @@ namespace AtCoder.Executors
             }
             
         }
-
-        //private string GetDownloadFolderPath()
-        //{
-        //    return Path.Combine(DownloadedTestCaseFolder, Probrem.Contest);
-        //}
-        //private string GetProbremURL()
-        //{
-        //    return string.Format(_probremURL, Probrem.Contest.ToLower(), Probrem.ID.ToString().ToLower());
-        //}
-        
-
-
-
     }
 }
