@@ -21,7 +21,7 @@ namespace AtCoder.Executors
         {
             var di = Directory.CreateDirectory(Path.Combine(DownloadFolder, probrem.Contest, probrem.ID.ToString()));
 
-            if (!di.EnumerateFiles(DownloadFolder).Any())
+            if (!di.EnumerateFiles().Any())
             {
                 using (var chrome = CreateDriver())
                 {

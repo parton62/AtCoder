@@ -37,8 +37,8 @@ namespace AtCoder.Executors
                     var result = output.ToString().Trim();
                     var answer = test.GetOutputStream().ReadToEnd().Trim();
 
-                    display.Append("result:").AppendLine(result);
-                    display.Append("answer:").AppendLine(answer);
+                    display.AppendLine("result:").AppendLine(result);
+                    display.AppendLine("answer:").AppendLine(answer);
 
                     display.Append("elapsed:").AppendLine(sw.Elapsed.TotalSeconds.ToString());
 
