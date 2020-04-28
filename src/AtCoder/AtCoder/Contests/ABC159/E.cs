@@ -22,76 +22,62 @@ namespace AtCoder.Contests.ABC159
 
             var min = int.MaxValue;
 
-
-            for (int i = 0; i < Math.Pow(2, h-1); i++)
+            foreach (var i in Bits.Enumerate(h - 1))
             {
-                //横に折る個所を決める
-
-                //一番下に仮想の折り目を入れる
+                //一番下に折り目を入れる
                 var bits = i + (int)Math.Pow(2, h - 1);
-                var prevh = -1;
 
-                var wsep = new bool[w];
-                //wsep[0] = true;
-
-                //仮想の折り目の分
-                var count = -1;
-                var goNext = false;
-                for (int ih = 0; ih < h; ih++)
+                //一列ごとに縦方向の和を求める
+                var panels = Enumerable.Range(0, w).Select(_ => new List<int>()).ToArray();
+                for (int j = 0; j < w; j++)
                 {
-                    //折る場所じゃなかったら次へ
-                    if ((bits &1) == 0)
-                    {
-                        bits = bits >> 1;
-                        continue;
-                    }
-                    count++;
-                    
-                    //折った上側について、縦に
-                    var row = Enumerable.Range(0, w)
-                             .Select(wi => Enumerable.Range(prevh+1, ih - prevh)
-                                          .Count(hii => ss[hii][wi] == '1'))
-                             .ToList();
+                    var panel = panels[j];
+                    var sum = 0;
 
-                    goNext = false;
-                    var block = 0;
-                    for (int j = 0; j < w; j++)
+                    for (int b = 0; b < h; b++)
                     {
-                        if(row[j] > k)
+                        if (ss[b][j] == '1') sum++;
+                        if (bits.HasFlag(b))
                         {
-                            //一つのセルで超えてしまう場合は次のh分割パターンへ
+                            panel.Add(sum);
+                            sum = 0;
+                        }
+                    }
+                }
+
+                var blockCount = panels[0].Count;
+
+                var count = 0;
+                var counts = new int[blockCount];
+                var goNext = false;
+
+                for (int j = 0; j < w; j++)
+                {
+                    var needFold = false;
+                    for (int l = 0; l < blockCount; l++)
+                    {
+                        var c = panels[j][l];
+                        if(c > k)
+                        {
                             goNext = true;
                             break;
                         }
-                        if (wsep[j])
-                        {
-                            block = row[j];
-                            continue;
-                        }
 
-                        block += row[j];
-                        if (block > k)
-                        {
-                            wsep[j] = true;
-                            block = row[j];
-                            count++;
-                        }
+                        counts[l] += c;
+                        if (counts[l] > k) needFold = true;
                     }
-                    //if(block > k)
-                    //{
-                    //    goNext = true;
-                    //}
 
                     if (goNext) break;
-
-
-                    bits = bits >> 1;
-                    prevh = ih;
+                    if (needFold)
+                    {
+                        for (int l = 0; l < blockCount; l++) counts[l] = panels[j][l];
+                        count++;
+                    }
                 }
 
                 if (goNext) continue;
 
-                min = Math.Min(min, count);
+                min = Math.Min(min, count + blockCount - 1);
             }
             Console.WriteLine(min);
         }
@@ -179,5 +165,17 @@ namespace AtCoder.Contests.ABC159
             return r;
         }
         #endregion
+    }
+    static class Bits
+    {
+        public static IEnumerable<int> Enumerate(int bitDigits)
+        {
+            return Enumerable.Range(0, (int)Math.Pow(2, bitDigits));
+        }
+
+        public static bool HasFlag(this int bits, int index)
+        {
+            return (bits >> index & 1) == 1;
+        }
     }
 }
