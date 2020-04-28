@@ -13,63 +13,33 @@ namespace AtCoder.Contests.ABC163
         static void Main(string[] args)
         {
             var n = NextInt();
-            var aas = ReadLongArray().OrderByDescending(a => a).ToArray();
+            var aas = ReadLongArray();
 
-            //各幼児は元の位置から右へ動くか左へ動くかの二通りが考えられる
-            //最初からn人のうち a 人が左、残りが右へ動いた際に次の一人が左右に動いた時のうれしさを考える
-            //動かす際には、できるだけ活発な幼児から動かしたほうが良い
-
-            
-
-            var dp = new long[n + 1, n + 1];
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= n; j++)
-                {
-
-                }
-            }
-
-
-            var heap = new MaxHeap<Activity>(n, (x, y) => x.Point.CompareTo(y.Point));
-
+            var heap = new MaxHeap<(long act, int index)>(n, (x, y) => x.act.CompareTo(y.act));
             for (int i = 0; i < n; i++)
             {
-                for (int j = 0; j < n; j++)
-                {
-                    heap.Push(new Activity(i, j, aas[i] * Math.Abs(i - j)));
-                }
+                heap.Push((aas[i], i));
             }
-            var children = new HashSet<int>();
-            var lines = new HashSet<int>();
 
-            long sum = 0;
+            long max = -1;
+
+            var dp = new long[n + 1, n + 1];
+            var count = 0;
             while (heap.Any())
             {
-                var p = heap.Pop();
-                if (children.Contains(p.Before)) continue;
-                if (lines.Contains(p.After)) continue;
+                var (act, index) = heap.Pop();
+                count++;
 
-                sum += p.Point;
-                children.Add(p.Before);
-                lines.Add(p.After);
+                for (int i = 0; i <= count; i++)
+                {
+                    var j = count - i;
+
+                    if (i > 0) MathEx.chmax(ref dp[i, j], dp[i - 1, j] + act * Math.Abs(index - i + 1));
+                    if (j > 0) MathEx.chmax(ref dp[i, j], dp[i, j - 1] + act * Math.Abs(n - j - index));
+                }
             }
 
-            Console.WriteLine(sum);
-        }
-
-        struct Activity
-        {
-            public int Before;
-            public int After;
-            public long Point;
-
-            public Activity(int b, int a, long p)
-            {
-                Before = b;
-                After = a;
-                Point = p;
-            }
+            Console.WriteLine(Enumerable.Range(0, n).Max(i => dp[i, n - i]));
         }
 
         #region Console
@@ -296,6 +266,27 @@ namespace AtCoder.Contests.ABC163
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+    }
+    class MathEx
+    {
+        public static bool chmax<T>(ref T x, T y) where T : IComparable<T>
+        {
+            if (x.CompareTo(y) < 0)
+            {
+                x = y;
+                return true;
+            }
+            return false;
+        }
+        public static bool chmin<T>(ref T x, T y) where T : IComparable<T>
+        {
+            if(x.CompareTo(y) > 0)
+            {
+                x = y;
+                return true;
+            }
+            return false;
         }
     }
 }
