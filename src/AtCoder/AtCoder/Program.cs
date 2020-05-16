@@ -9,7 +9,7 @@ namespace AtCoder
     {
         public static void Main(string[] args)
         {
-            ExecuteLive(typeof(Contests.ABC156.D));
+            ExecuteLive(typeof(Contests.ABC155.B));
         }
 
         static void ExecuteLive(Type probrem, int? index=null)
