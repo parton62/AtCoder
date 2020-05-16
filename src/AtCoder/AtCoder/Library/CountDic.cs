@@ -8,19 +8,50 @@ namespace AtCoder.Library
     class CountDic<T> : IDictionary<T, int>
     {
         private Dictionary<T, int> _dic = new Dictionary<T, int>();
-        public int this[T key] 
+        public int this[T key]
         {
-            get => Get(key);
-            set => _dic[key] = value;
+            get
+            {
+                return Get(key);
+            }
+
+            set
+            {
+                _dic[key] = value;
+            }
         }
 
-        public ICollection<T> Keys => _dic.Keys;
+        public ICollection<T> Keys
+        {
+            get
+            {
+                return _dic.Keys;
+            }
+        }
 
-        public ICollection<int> Values => _dic.Values;
+        public ICollection<int> Values
+        {
+            get
+            {
+                return _dic.Values;
+            }
+        }
 
-        public int Count => _dic.Count;
+        public int Count
+        {
+            get
+            {
+                return _dic.Count;
+            }
+        }
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly
+        {
+            get
+            {
+                return false;
+            }
+        }
 
         public void Add(T key, int value)
         {
@@ -67,7 +98,7 @@ namespace AtCoder.Library
             return _dic.Remove(item.Key);
         }
 
-        public bool TryGetValue(T key, [MaybeNullWhen(false)] out int value)
+        public bool TryGetValue(T key, out int value)
         {
             value = Get(key);
             return true;
