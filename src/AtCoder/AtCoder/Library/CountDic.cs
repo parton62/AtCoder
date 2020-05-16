@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 
 namespace AtCoder.Library
 {
@@ -26,15 +24,7 @@ namespace AtCoder.Library
 
         public void Add(T key, int value)
         {
-            int c;
-            if (_dic.TryGetValue(key, out c))
-            {
-                _dic[key] = c + 1;
-            }
-            else
-            {
-                _dic[key] = 1;
-            }
+            _dic.Add(key, value);
         }
 
         public void Add(KeyValuePair<T, int> item)
@@ -83,7 +73,7 @@ namespace AtCoder.Library
             return true;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return _dic.GetEnumerator();
         }
@@ -99,6 +89,12 @@ namespace AtCoder.Library
             {
                 return 0;
             }
+        }
+        public int CountUp(T key)
+        {
+            var c = Get(key) + 1;
+            _dic[key] = c;
+            return c;
         }
     }
 }
