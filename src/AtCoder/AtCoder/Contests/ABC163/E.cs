@@ -21,8 +21,6 @@ namespace AtCoder.Contests.ABC163
                 heap.Push((aas[i], i));
             }
 
-            long max = -1;
-
             var dp = new long[n + 1, n + 1];
             var count = 0;
             while (heap.Any())

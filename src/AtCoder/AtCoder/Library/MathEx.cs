@@ -24,5 +24,17 @@ namespace AtCoder.Library
             }
             return false;
         }
+        public static HashSet<long> GetDivisors(long n)
+        {
+            var f = Math.Sqrt(n);
+            var d = new HashSet<long>();
+            for (int i = 2; i <= f; i++)
+            {
+                if (n % i != 0) continue;
+                d.Add(i);
+                d.Add(n / i);
+            }
+            return d;
+        }
     }
 }
